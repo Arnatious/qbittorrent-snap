@@ -1,6 +1,6 @@
 name: qbittorrent-arnatious # you probably want to 'snapcraft register <name>'
 base: core18 # the base snap is the execution environment for this snap
-version: '0.1' # just for humans, typically '1.2+git' or '1.3.2'
+version: '0.2' # just for humans, typically '1.2+git' or '1.3.2'
 summary: A free and lightweight torrent client
 description: |
   qBittorrent is a full featured FOSS alternative to uTorrent.
@@ -56,8 +56,6 @@ parts:
 
   libtorrent:
     plugin: cmake
-    build-snaps:
-      - cmake
     build-packages:
       - build-essential
     build-environment:
@@ -68,7 +66,9 @@ parts:
     source: https://github.com/arvidn/libtorrent.git
     source-branch: RC_1_2
     stage-packages:
-      - libboost-system1.65.1
+      - libboost-system1.65-dev
+    after:
+      - cmake-from-source
 
   qt5:
     source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
@@ -97,6 +97,11 @@ parts:
     plugin: nil
     stage-packages:
       - qt5-gtk-platformtheme
+
+  cmake-from-source:
+    plugin: cmake
+    source: https://gitlab.kitware.com/cmake/cmake.git
+    source-depth: 1
 
 apps:
   qbittorrent:
