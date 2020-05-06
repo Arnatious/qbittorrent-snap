@@ -9,7 +9,7 @@ description: |
   Bittorrent extensions, and advanced network management tools,
   qBittorrent is the best client available.
 
-grade: devel # must be 'stable' to release into candidate/stable channels
+grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict # use 'strict' once you have the right plugs and slots
 
 parts:
@@ -22,9 +22,6 @@ parts:
     configflags:
       - -DCMAKE_BUILD_TYPE=Release
       - -DCMAKE_INSTALL_PREFIX=/usr
-    override-build: |
-      snapcraftctl build
-      sed -i 's|Icon=qbittorrent|Icon=${SNAP}/usr/share/icons/hicolor/192x192/apps/qbittorrent.png|g' $SNAPCRAFT_PART_INSTALL/usr/share/applications/org.qbittorrent.qBittorrent.desktop
     build-packages:
       - libtool
       - git
@@ -102,6 +99,7 @@ parts:
     plugin: cmake
     source: https://gitlab.kitware.com/cmake/cmake.git
     source-depth: 1
+    prime: [-*]
 
 apps:
   qbittorrent:
