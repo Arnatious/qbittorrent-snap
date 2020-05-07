@@ -22,6 +22,9 @@ parts:
     configflags:
       - -DCMAKE_BUILD_TYPE=Release
       - -DCMAKE_INSTALL_PREFIX=/usr
+    override-build: |
+      snapcraftctl build
+      sed -i 's|Icon=qbittorrent|Icon=/usr/share/icons/hicolor/192x192/apps/qbittorrent.png|g' $SNAPCRAFT_PART_INSTALL/usr/share/applications/org.qbittorrent.qBittorrent.desktop
     build-packages:
       - libtool
       - git
