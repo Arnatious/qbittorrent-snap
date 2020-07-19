@@ -17,7 +17,7 @@ parts:
     # See 'snapcraft plugins'
     plugin: cmake
     source: https://github.com/qbittorrent/qBittorrent.git
-    source-branch: v4_2_x
+    source-branch: v3_3_x
     source-depth: 1
     cmake-parameters:
       - -DCMAKE_BUILD_TYPE=Release
@@ -28,7 +28,7 @@ parts:
       snapcraftctl set-version $(git describe)
     override-build: |
       snapcraftctl build
-      sed -i 's|Icon=qbittorrent|Icon=/usr/share/icons/hicolor/192x192/apps/qbittorrent.png|g' $SNAPCRAFT_PART_INSTALL/usr/share/applications/org.qbittorrent.qBittorrent.desktop
+      sed -i 's|Icon=qbittorrent|Icon=/usr/share/icons/hicolor/192x192/apps/qbittorrent.png|g' $SNAPCRAFT_PART_INSTALL/usr/share/applications/qbittorrent.desktop
     build-packages:
       - libtool
       - git
@@ -109,7 +109,7 @@ apps:
     command: usr/bin/qbittorrent
     command-chain:
       - bin/desktop-launch
-    desktop: usr/share/applications/org.qbittorrent.qBittorrent.desktop
+    desktop: usr/share/applications/qbittorrent.desktop
     plugs:
       - x11
       - home
