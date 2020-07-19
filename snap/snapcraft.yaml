@@ -1,6 +1,6 @@
 name: qbittorrent-arnatious # you probably want to 'snapcraft register <name>'
-base: core18 # the base snap is the execution environment for this snap
-version: '0.2' # just for humans, typically '1.2+git' or '1.3.2'
+base: core20 # the base snap is the execution environment for this snap
+adopt-info: qbittorrent
 summary: A free and lightweight torrent client
 description: |
   qBittorrent is a full featured FOSS alternative to uTorrent.
@@ -19,9 +19,13 @@ parts:
     source: https://github.com/qbittorrent/qBittorrent.git
     source-branch: v4_2_x
     source-depth: 1
-    configflags:
+    cmake-parameters:
       - -DCMAKE_BUILD_TYPE=Release
       - -DCMAKE_INSTALL_PREFIX=/usr
+      - -DCMAKE_PREFIX_PATH=$SNAPCRAFT_STAGE
+    override-pull: |
+      snapcraftctl pull
+      snapcraftctl set-version $(git describe)
     override-build: |
       snapcraftctl build
       sed -i 's|Icon=qbittorrent|Icon=/usr/share/icons/hicolor/192x192/apps/qbittorrent.png|g' $SNAPCRAFT_PART_INSTALL/usr/share/applications/org.qbittorrent.qBittorrent.desktop
@@ -54,22 +58,6 @@ parts:
       - libtorrent
       - qt5
 
-  libtorrent:
-    plugin: cmake
-    build-packages:
-      - build-essential
-    build-environment:
-      - PATH: /snap/bin:$PATH
-    configflags:
-      - -DCMAKE_CXX_STANDARD=14
-      - -DCMAKE_BUILD_TYPE=Release
-    source: https://github.com/arvidn/libtorrent.git
-    source-branch: RC_1_2
-    stage-packages:
-      - libboost-system1.65-dev
-    after:
-      - cmake-from-source
-
   qt5:
     source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
     source-subdir: qt
@@ -98,11 +86,22 @@ parts:
     stage-packages:
       - qt5-gtk-platformtheme
 
-  cmake-from-source:
+  libtorrent:
     plugin: cmake
-    source: https://gitlab.kitware.com/cmake/cmake.git
-    source-depth: 1
-    prime: [-*]
+    build-packages:
+      - build-essential
+    cmake-parameters:
+      - -DCMAKE_CXX_STANDARD=14
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DCMAKE_INSTALL_PREFIX=''
+    source: https://github.com/arvidn/libtorrent.git
+    source-branch: RC_1_2
+    stage-packages:
+      - libboost-system-dev
+
+layout:
+  /usr/share/icons:
+    bind: $SNAP/usr/share/icons
 
 apps:
   qbittorrent:
