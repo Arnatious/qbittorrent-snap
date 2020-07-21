@@ -18,11 +18,11 @@ parts:
     plugin: cmake
     source: https://github.com/qbittorrent/qBittorrent.git
     source-branch: v3_3_x
-    source-depth: 1
     cmake-parameters:
       - -DCMAKE_BUILD_TYPE=Release
       - -DCMAKE_INSTALL_PREFIX=/usr
       - -DCMAKE_PREFIX_PATH=$SNAPCRAFT_STAGE
+      - -DCMAKE_CXX_FLAGS="-w"
     override-pull: |
       snapcraftctl pull
       snapcraftctl set-version $(git describe)
@@ -91,11 +91,10 @@ parts:
     build-packages:
       - build-essential
     cmake-parameters:
-      - -DCMAKE_CXX_STANDARD=14
       - -DCMAKE_BUILD_TYPE=Release
       - -DCMAKE_INSTALL_PREFIX=''
     source: https://github.com/arvidn/libtorrent.git
-    source-branch: RC_1_2
+    source-branch: RC_1_1
     stage-packages:
       - libboost-system-dev
 
