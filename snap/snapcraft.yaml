@@ -3,11 +3,6 @@ base: core18 # the base snap is the execution environment for this snap
 adopt-info: qbittorrent
 grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict # use 'strict' once you have the right plugs and slots
-layout:
-  /usr/share/icons/hicolor:
-    symlink: $SNAP/usr/share/icons/hicolor
-  /usr/share/pixmaps:
-    symlink: $SNAP/usr/share/pixmaps
 
 parts:
   qbittorrent:
@@ -17,12 +12,7 @@ parts:
     source-branch: v4_2_x
     source-depth: 1
     parse-info:
-      - usr/share/metainfo/org.qbittorrent.qBittorrent.appdata.xml
-    configflags:
-      - -DCMAKE_BUILD_TYPE=Release
-      - -DCMAKE_INSTALL_PREFIX=/usr
-    override-build: |
-      snapcraftctl build
+      - share/metainfo/org.qbittorrent.qBittorrent.appdata.xml
     build-packages:
       - libtool
       - git
@@ -34,29 +24,18 @@ parts:
       - libssl-dev
       - libgeoip-dev
       - pkg-config
-      - libqt5x11extras5-dev
-      - libqt5svg5-dev
-      - libqt5xml5
-      - qtbase5-dev
-      - qttools5-dev
-      - qttools5-dev-tools
+      - libglvnd-dev
     build-snaps:
-      - kde-frameworks-5-qt-5-14-core18-sdk
       - cmake
+      - kde-frameworks-5-core18
+      - kde-frameworks-5-core18-sdk
     stage-packages:
       - python3
-      - libqt5x11extras5
-      - libqt5svg5
-      - qt5-gtk-platformtheme
-      - libqt5concurrent5
-      - libqt5xml5
       - libcanberra-gtk3-module
       - freeglut3
       - libgpm2
       - libslang2
-    stage-snaps:
-      - kde-frameworks-5-qt-5-14-core18-sdk
-      - kde-frameworks-5-qt-5-14-core18
+      - libboost-system-dev
     after:
       - libtorrent
 
@@ -64,36 +43,17 @@ parts:
     plugin: cmake
     build-packages:
       - build-essential
+      - libboost-dev
+      - libboost-system-dev
+      - libboost-chrono-dev
+      - libboost-random-dev
+      - libssl-dev
+    build-snaps:
       - cmake
-    build-environment:
-      - PATH: /snap/bin:$PATH
-    configflags:
-      - -DCMAKE_CXX_STANDARD=14
-      - -DCMAKE_BUILD_TYPE=Release
-    stage:
-      - -usr/bin/gencat
-      - -usr/bin/mtrace
-      - -usr/bin/rpcgen
-      - -usr/bin/sotruss
-      - -usr/bin/sprof
-      - -usr/include/linux/coresight-stm.h
-      - -usr/include/linux/ndctl.h
-      - -usr/include/linux/serio.h
-      - -usr/include/linux/swab.h
-      - -usr/include/linux/usb/charger.h
-      - -usr/lib/x86_64-linux-gnu/libc.a
-      - -usr/lib/x86_64-linux-gnu/libm-2.27.a
-      - -usr/lib/x86_64-linux-gnu/libnsl.a
-      - -usr/lib/x86_64-linux-gnu/libpthread.a
-      - -usr/lib/x86_64-linux-gnu/libpthread_nonshared.a
-      - -usr/lib/x86_64-linux-gnu/libresolv.a
-      - -usr/lib/x86_64-linux-gnu/librt.a
-      - -usr/lib/x86_64-linux-gnu/libtsan.so.0.0.0
-      - -usr/lib/x86_64-linux-gnu/libutil.a
     source: https://github.com/arvidn/libtorrent.git
     source-branch: RC_1_2
     stage-packages:
-      - libboost-system1.65-dev
+      - libboost-system1.65.1
 
   cleanup:
     after:  # Make this part run last; list all your other parts here
@@ -102,16 +62,17 @@ parts:
     build-snaps:  # List all content-snaps and base snaps you're using here
       - core18
       - cmake
-      - kde-frameworks-5-qt-5-14-core18-sdk
+      - kde-frameworks-5-core18-sdk
+      - kde-frameworks-5-core18
     override-prime: |
       set -eux
-      for snap in "core18" "cmake" "kde-frameworks-5-qt-5-14-core18-sdk"; do  # List all content-snaps and base snaps you're using here
+      for snap in "core18" "cmake" "kde-frameworks-5-core18-sdk" "kde-frameworks-5-core18"; do  # List all content-snaps and base snaps you're using here
           cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$SNAPCRAFT_PRIME/{}" \;
       done
 
 apps:
   qbittorrent:
-    command: usr/bin/qbittorrent
+    command: bin/qbittorrent
     extensions:
       - kde-neon
     common-id: org.qbittorrent.qBittorrent
@@ -138,20 +99,3 @@ slots:
     interface: dbus
     name: org.qbittorrent.qBittorrent
     bus: session
-
-plugs:
-  # Support for common GTK themes
-  # https://forum.snapcraft.io/t/how-to-use-the-system-gtk-theme-via-the-gtk-common-themes-snap/6235
-  gsettings:
-  gtk-3-themes:
-    interface: content
-    target: $SNAP/data-dir/themes
-    default-provider: gtk-common-themes
-  icon-themes:
-    interface: content
-    target: $SNAP/data-dir/icons
-    default-provider: gtk-common-themes
-  sound-themes:
-    interface: content
-    target: $SNAP/data-dir/sounds
-    default-provider: gtk-common-themes
