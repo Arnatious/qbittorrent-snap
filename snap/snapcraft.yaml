@@ -8,11 +8,12 @@ parts:
   qbittorrent:
     # See 'snapcraft plugins'
     plugin: cmake
+    configflags:
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
     source: https://github.com/qbittorrent/qBittorrent.git
     source-branch: v4_2_x
-    source-depth: 1
     parse-info:
-      - share/metainfo/org.qbittorrent.qBittorrent.appdata.xml
+      - usr/share/metainfo/org.qbittorrent.qBittorrent.appdata.xml
     build-packages:
       - libtool
       - git
@@ -72,7 +73,7 @@ parts:
 
 apps:
   qbittorrent:
-    command: bin/qbittorrent
+    command: usr/bin/qbittorrent
     extensions:
       - kde-neon
     common-id: org.qbittorrent.qBittorrent
