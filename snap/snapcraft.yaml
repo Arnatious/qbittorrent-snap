@@ -17,7 +17,7 @@ parts:
     # See 'snapcraft plugins'
     plugin: cmake
     source: https://github.com/qbittorrent/qBittorrent.git
-    source-branch: v4_2_x
+    source-branch: v4_3_x
     source-depth: 1
     cmake-parameters:
       - -DCMAKE_BUILD_TYPE=Release
