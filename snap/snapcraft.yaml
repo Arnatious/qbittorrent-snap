@@ -1,6 +1,14 @@
 name: qbittorrent-arnatious # you probably want to 'snapcraft register <name>'
-base: core18 # the base snap is the execution environment for this snap
+base: core20 # the base snap is the execution environment for this snap
 adopt-info: qbittorrent
+summary: A free and lightweight torrent client
+description: |
+  qBittorrent is a full featured FOSS alternative to uTorrent.
+
+  With a lightweight, Qt based GUI and built in search engine,
+  Bittorrent extensions, and advanced network management tools,
+  qBittorrent is the best client available.
+
 grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict # use 'strict' once you have the right plugs and slots
 
@@ -8,12 +16,19 @@ parts:
   qbittorrent:
     # See 'snapcraft plugins'
     plugin: cmake
-    configflags:
-      - "-DCMAKE_INSTALL_PREFIX=/usr"
     source: https://github.com/qbittorrent/qBittorrent.git
     source-branch: v4_2_x
-    parse-info:
-      - usr/share/metainfo/org.qbittorrent.qBittorrent.appdata.xml
+    source-depth: 1
+    cmake-parameters:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DCMAKE_INSTALL_PREFIX=/usr
+      - -DCMAKE_PREFIX_PATH=$SNAPCRAFT_STAGE
+    override-pull: |
+      snapcraftctl pull
+      snapcraftctl set-version $(git describe)
+    override-build: |
+      snapcraftctl build
+      sed -i 's|Icon=qbittorrent|Icon=/usr/share/icons/hicolor/192x192/apps/qbittorrent.png|g' $SNAPCRAFT_PART_INSTALL/usr/share/applications/org.qbittorrent.qBittorrent.desktop
     build-packages:
       - libtool
       - git
@@ -25,58 +40,76 @@ parts:
       - libssl-dev
       - libgeoip-dev
       - pkg-config
-      - libglvnd-dev
-    build-snaps:
-      - cmake
-      - kde-frameworks-5-core18
-      - kde-frameworks-5-core18-sdk
+      - libqt5x11extras5-dev
+      - libqt5svg5-dev
+      - libqt5xml5
+      - qtbase5-dev
+      - qttools5-dev
+      - qttools5-dev-tools
     stage-packages:
       - python3
+      - libqt5x11extras5
+      - libqt5svg5
+      - qt5-gtk-platformtheme
+      - libqt5concurrent5
+      - libqt5xml5
       - libcanberra-gtk3-module
-      - freeglut3
-      - libgpm2
-      - libslang2
-      - libboost-system-dev
     after:
       - libtorrent
+      - qt5
+
+  qt5:
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: qt
+    plugin: make
+    make-parameters: ["FLAVOR=qt5"]
+    build-packages:
+      - qtbase5-dev
+      - dpkg-dev
+    stage-packages:
+      - libxkbcommon0
+      - ttf-ubuntu-font-family
+      - dmz-cursor-theme
+      - light-themes
+      - adwaita-icon-theme
+      - gnome-themes-standard
+      - shared-mime-info
+      - libqt5gui5
+      - libgdk-pixbuf2.0-0
+      - libqt5svg5 # for loading icon themes which are svg
+      - try: [appmenu-qt5] # not available on core18
+      - locales-all
+      - libgtk2.0-0
+
+  qt5-gtk-platform:
+    plugin: nil
+    stage-packages:
+      - qt5-gtk-platformtheme
 
   libtorrent:
     plugin: cmake
     build-packages:
       - build-essential
-      - libboost-dev
-      - libboost-system-dev
-      - libboost-chrono-dev
-      - libboost-random-dev
-      - libssl-dev
-    build-snaps:
-      - cmake
+    cmake-parameters:
+      - -DCMAKE_CXX_STANDARD=14
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DCMAKE_INSTALL_PREFIX=''
     source: https://github.com/arvidn/libtorrent.git
     source-branch: RC_1_2
     stage-packages:
-      - libboost-system1.65.1
+      - libboost-system-dev
 
-  cleanup:
-    after:  # Make this part run last; list all your other parts here
-      - qbittorrent
-    plugin: nil
-    build-snaps:  # List all content-snaps and base snaps you're using here
-      - core18
-      - cmake
-      - kde-frameworks-5-core18-sdk
-      - kde-frameworks-5-core18
-    override-prime: |
-      set -eux
-      for snap in "core18" "cmake" "kde-frameworks-5-core18-sdk" "kde-frameworks-5-core18"; do  # List all content-snaps and base snaps you're using here
-          cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$SNAPCRAFT_PRIME/{}" \;
-      done
+layout:
+  /usr/share/icons:
+    bind: $SNAP/usr/share/icons
 
 apps:
   qbittorrent:
+    adapter: full
     command: usr/bin/qbittorrent
-    extensions:
-      - kde-neon
-    common-id: org.qbittorrent.qBittorrent
+    command-chain:
+      - bin/desktop-launch
+    desktop: usr/share/applications/org.qbittorrent.qBittorrent.desktop
     plugs:
       - x11
       - home
@@ -93,10 +126,23 @@ apps:
       - network-manager
       - network-control
       - opengl
-      - kde-frameworks-5-plug
+    environment:
+      DISABLE_WAYLAND: 1
+      QT_QPA_PLATFORMTHEME: gtk3
 
-slots:
-  session-dbus-interface:
-    interface: dbus
-    name: org.qbittorrent.qBittorrent
-    bus: session
+plugs:
+  # Support for common GTK themes
+  # https://forum.snapcraft.io/t/how-to-use-the-system-gtk-theme-via-the-gtk-common-themes-snap/6235
+  gsettings:
+  gtk-3-themes:
+    interface: content
+    target: $SNAP/data-dir/themes
+    default-provider: gtk-common-themes
+  icon-themes:
+    interface: content
+    target: $SNAP/data-dir/icons
+    default-provider: gtk-common-themes
+  sound-themes:
+    interface: content
+    target: $SNAP/data-dir/sounds
+    default-provider: gtk-common-themes
