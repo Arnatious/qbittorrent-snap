@@ -12,6 +12,13 @@ description: |
 grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict # use 'strict' once you have the right plugs and slots
 
+architectures:
+  - build-on:
+    - s390x
+    - ppc64el
+    - arm64
+    - amd64
+
 parts:
   qbittorrent:
     # See 'snapcraft plugins'
