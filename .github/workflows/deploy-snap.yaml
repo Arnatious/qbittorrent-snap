@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    uses: arnatious/qbittorrent-arnatious/.github/workflows/build-snap@github-actions
+    uses: arnatious/qbittorrent-snap/.github/workflows/build-snap.yaml@github-actions
   publish:
     runs-on: ubuntu-latest
     needs: build
