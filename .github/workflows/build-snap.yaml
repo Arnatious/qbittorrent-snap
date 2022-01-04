@@ -1,0 +1,22 @@
+on:
+  workflow_call:
+    outputs:
+      snap:
+        description: "Built snap output"
+        value: ${{ steps.snapcraft.outputs.snap }}
+  push:
+    branches:
+      - '*'
+      - '!master'
+      - '!github-actions'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: snapcore/action-build@v1
+        id: build
+      - uses: actions/upload-artifact@v2
+        with: 
+          name: snap
+          path: ${{ steps.snapcraft.outputs.snap }}
