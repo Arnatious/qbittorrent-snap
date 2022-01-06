@@ -14,8 +14,6 @@ confinement: strict # use 'strict' once you have the right plugs and slots
 
 architectures:
   - build-on:
-    - s390x
-    - ppc64el
     - arm64
     - amd64
 
@@ -63,6 +61,8 @@ parts:
     after:
       - libtorrent
       - qt5
+    build-environment: &id001
+      - SNAPCRAFT_CMAKE_ARGS: -DCMAKE_FIND_ROOT_PATH=/snap/kde-frameworks-5-qt-5-15-3-core20-sdk/current
 
   qt5:
     source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
@@ -86,12 +86,12 @@ parts:
       - try: [appmenu-qt5] # not available on core18
       - locales-all
       - libgtk2.0-0
-
+    build-environment: *id001
   qt5-gtk-platform:
     plugin: nil
     stage-packages:
       - qt5-gtk-platformtheme
-
+    build-environment: *id001
   libtorrent:
     plugin: cmake
     build-packages:
@@ -104,17 +104,26 @@ parts:
     source-branch: RC_1_2
     stage-packages:
       - libboost-system-dev
-
+    build-environment: *id001
+  kde-neon-extension:
+    build-packages:
+    - g++    
+    build-snaps:
+    - kde-frameworks-5-qt-5-15-3-core20-sdk/latest/candidate
+    make-parameters:
+    - PLATFORM_PLUG=kde-frameworks-5-plug
+    plugin: make
+    source: $SNAPCRAFT_EXTENSIONS_DIR/desktop
+    source-subdir: kde-neon
 layout:
   /usr/share/icons:
     bind: $SNAP/usr/share/icons
-
 apps:
   qbittorrent:
     adapter: full
     command: usr/bin/qbittorrent
     command-chain:
-      - bin/desktop-launch
+      - snap/command-chain/desktop-launch
     desktop: usr/share/applications/org.qbittorrent.qBittorrent.desktop
     plugs:
       - x11
@@ -139,7 +148,7 @@ apps:
 plugs:
   # Support for common GTK themes
   # https://forum.snapcraft.io/t/how-to-use-the-system-gtk-theme-via-the-gtk-common-themes-snap/6235
-  gsettings:
+  gsettings: null
   gtk-3-themes:
     interface: content
     target: $SNAP/data-dir/themes
@@ -152,3 +161,20 @@ plugs:
     interface: content
     target: $SNAP/data-dir/sounds
     default-provider: gtk-common-themes
+  desktop:
+    mount-host-font-cache: false
+  kde-frameworks-5-plug:
+    content: kde-frameworks-5-qt-5-15-3-core20-all
+    default-provider: kde-frameworks-5-qt-5-15-3-core20
+    interface: content
+    target: $SNAP/kf5
+assumes:
+  - snapd2.43
+environment:
+  SNAP_DESKTOP_RUNTIME: $SNAP/kf5
+hooks:
+  configure:
+    command-chain:
+    - snap/command-chain/hooks-configure-desktop
+    plugs:
+    - desktop
