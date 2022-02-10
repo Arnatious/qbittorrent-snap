@@ -26,13 +26,15 @@ parts:
     cmake-parameters:
       - -DCMAKE_BUILD_TYPE=Release
       - -DCMAKE_INSTALL_PREFIX=/usr
-      - -DCMAKE_PREFIX_PATH=$SNAPCRAFT_STAGE
+      - -DCMAKE_PREFIX_PATH="$SNAPCRAFT_STAGE;/snap/kde-frameworks-5-qt-5-15-3-core20-sdk/current/usr"
     override-pull: |
       snapcraftctl pull
       snapcraftctl set-version $(git describe)
     override-build: |
       snapcraftctl build
       sed -i 's|Icon=qbittorrent|Icon=/usr/share/icons/hicolor/192x192/apps/qbittorrent.png|g' $SNAPCRAFT_PART_INSTALL/usr/share/applications/org.qbittorrent.qBittorrent.desktop
+    build-snaps:
+      - kde-frameworks-5-qt-5-15-3-core20-sdk/latest/candidate
     build-packages:
       - libtool
       - git
@@ -44,54 +46,16 @@ parts:
       - libssl-dev
       - libgeoip-dev
       - pkg-config
-      - libqt5x11extras5-dev
-      - libqt5svg5-dev
-      - libqt5xml5
-      - qtbase5-dev
-      - qttools5-dev
-      - qttools5-dev-tools
+    stage-snaps:
+      - kde-frameworks-5-qt-5-15-3-core20-sdk/latest/candidate
+      - kde-frameworks-5-qt-5-15-3-core20/latest/candidate
     stage-packages:
       - python3
-      - libqt5x11extras5
-      - libqt5svg5
-      - qt5-gtk-platformtheme
-      - libqt5concurrent5
-      - libqt5xml5
       - libcanberra-gtk3-module
     after:
       - libtorrent
-      - qt5
-    build-environment: &id001
-      - SNAPCRAFT_CMAKE_ARGS: -DCMAKE_FIND_ROOT_PATH=/snap/kde-frameworks-5-qt-5-15-3-core20-sdk/current
+      - kde-neon-extension
 
-  qt5:
-    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
-    source-subdir: qt
-    plugin: make
-    make-parameters: ["FLAVOR=qt5"]
-    build-packages:
-      - qtbase5-dev
-      - dpkg-dev
-    stage-packages:
-      - libxkbcommon0
-      - ttf-ubuntu-font-family
-      - dmz-cursor-theme
-      - light-themes
-      - adwaita-icon-theme
-      - gnome-themes-standard
-      - shared-mime-info
-      - libqt5gui5
-      - libgdk-pixbuf2.0-0
-      - libqt5svg5 # for loading icon themes which are svg
-      - try: [appmenu-qt5] # not available on core18
-      - locales-all
-      - libgtk2.0-0
-    build-environment: *id001
-  qt5-gtk-platform:
-    plugin: nil
-    stage-packages:
-      - qt5-gtk-platformtheme
-    build-environment: *id001
   libtorrent:
     plugin: cmake
     build-packages:
@@ -104,7 +68,7 @@ parts:
     source-branch: RC_1_2
     stage-packages:
       - libboost-system-dev
-    build-environment: *id001
+
   kde-neon-extension:
     build-packages:
     - g++    
