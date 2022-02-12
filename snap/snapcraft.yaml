@@ -20,13 +20,9 @@ architectures:
 parts:
   qbittorrent:
     # See 'snapcraft plugins'
-    plugin: cmake
+    plugin: autotools
     source: https://github.com/qbittorrent/qBittorrent.git
     source-branch: v4_4_x
-    cmake-parameters:
-      - -DCMAKE_BUILD_TYPE=Release
-      - -DCMAKE_INSTALL_PREFIX=/usr
-      - -DCMAKE_PREFIX_PATH="$SNAPCRAFT_STAGE;/snap/kde-frameworks-5-qt-5-15-3-core20-sdk/current/usr"
     override-pull: |
       snapcraftctl pull
       snapcraftctl set-version $(git describe)
@@ -55,6 +51,9 @@ parts:
     after:
       - libtorrent
       - kde-neon-extension
+    build-environment: &id001
+      - SNAPCRAFT_CMAKE_ARGS: -DCMAKE_FIND_ROOT_PATH=/snap/kde-frameworks-5-qt-5-15-3-core20-sdk/current
+      - PKG_CONFIG_PATH: /snap/kde-frameworks-5-qt-5-15-3-core20-sdk/6/usr/lib/x86_64-linux-gnu/pkgconfig
 
   libtorrent:
     plugin: cmake
@@ -79,6 +78,7 @@ parts:
     plugin: make
     source: $SNAPCRAFT_EXTENSIONS_DIR/desktop
     source-subdir: kde-neon
+    
 layout:
   /usr/share/icons:
     bind: $SNAP/usr/share/icons
@@ -128,6 +128,11 @@ plugs:
   desktop:
     mount-host-font-cache: false
   kde-frameworks-5-plug:
+    content: kde-frameworks-5-qt-5-15-3-core20-all
+    default-provider: kde-frameworks-5-qt-5-15-3-core20
+    interface: content
+    target: $SNAP/kf5
+  kde-frameworks-5-qt-5-15-3-core20:
     content: kde-frameworks-5-qt-5-15-3-core20-all
     default-provider: kde-frameworks-5-qt-5-15-3-core20
     interface: content
