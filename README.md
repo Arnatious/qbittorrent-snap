@@ -20,7 +20,8 @@ distributions.</p>
 ## Install
 
     sudo snap install qbittorrent-arnatious
-    sudo snap connect qbittorrent-arnatious:network-control qbittorrent-arnatious:network-manager
+    sudo snap connect qbittorrent-arnatious:network-control 
+    sudo snap connect qbittorrent-arnatious:network-manager
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/qbittorrent-arnatious)
 
