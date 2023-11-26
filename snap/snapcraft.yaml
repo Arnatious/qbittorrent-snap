@@ -24,6 +24,7 @@ parts:
     source-branch: v4_6_x
     cmake-parameters:
       - -DCMAKE_BUILD_TYPE=Release
+      - -DCMAKE_EXE_LINKER_FLAGS_RELEASE=-s
       - -DCMAKE_INSTALL_PREFIX=''
     override-pull: |
       craftctl default
