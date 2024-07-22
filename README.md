@@ -1,3 +1,8 @@
+# NO LONGER MAINTAINED
+
+This snap has been abandoned for some time, as I do not have the time/resources to work on it. Please consider forking, or use a Flatpak, AppImage, or linuxserver.io container.
+
+
 <h1 align="center">
   <img src="https://raw.githubusercontent.com/qbittorrent/qBittorrent/f67ded678cc43542ac0802e5f6b9ae3e32cb6e35/dist/unix/menuicons/192x192/apps/qbittorrent.png" alt="qBittorrent">
   <br />
